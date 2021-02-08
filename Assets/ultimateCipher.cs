@@ -163,7 +163,6 @@ public class ultimateCipher : MonoBehaviour {
                 "ZUCCHINI"
             }
         };
-    List<string> triedWords = new List<string>();
     private string[][] pages;
     private string answer;
     private int page;
@@ -317,70 +316,75 @@ public class ultimateCipher : MonoBehaviour {
     }
     string TrifidEnc(string word)
     {
-        int length = UnityEngine.Random.Range(0, wordList.Count);
-        string kw = wordList[length][UnityEngine.Random.Range(0, wordList[length].Count)].ToUpper();
-        while(triedWords.Contains(kw))
-            kw = wordList[length][UnityEngine.Random.Range(0, wordList[length].Count)].ToUpper();
-        triedWords.Add(kw.ToUpper());
-        string key = getKey(kw.ToUpper(), "ABCDEFGHIJKLMNOPQRSTUVWXYZ", Bomb.GetBatteryCount() % 2 == 1);
-        string encrypt = "";
+        bool flag;
+        List<string> triedWords = new List<string>();
+        int length;
+        string kw;
+        string[] numbers = new string[3];
+        string key;
         string[] grid =
-        {
+            {
             "11111111122222222233333333",
             "11122233311122233311122233",
             "12312312312312312312312312"
         };
-        string[] numbers =
+        do
+        {
+            length = UnityEngine.Random.Range(0, wordList.Count);
+            kw = wordList[length][UnityEngine.Random.Range(0, wordList[length].Count)].ToUpper();
+            while (triedWords.Contains(kw))
             {
-                "", "", ""
-            };
-        for(int aa = 0; aa < 6; aa++)
-        {
-            int cursor = key.IndexOf(word[aa]);
-            numbers[0] = numbers[0] + "" + grid[0][cursor];
-            numbers[1] = numbers[1] + "" + grid[1][cursor];
-            numbers[2] = numbers[2] + "" + grid[2][cursor];
-        }
-        bool flag = true;
-        for(int bb = 0; bb < 3; bb++)
-        {
-            string n1 = numbers[bb][0] + "" + numbers[bb][1] + "" + numbers[bb][2];
-            string n2 = numbers[bb][3] + "" + numbers[bb][4] + "" + numbers[bb][5];
-            if(n1.Equals("333") || n2.Equals("333"))
+                length = UnityEngine.Random.Range(0, wordList.Count);
+                kw = wordList[length][UnityEngine.Random.Range(0, wordList[length].Count)].ToUpper();
+            }
+            triedWords.Add(kw.ToUpper());
+            key = getKey(kw.ToUpper(), "ABCDEFGHIJKLMNOPQRSTUVWXYZ", Bomb.GetBatteryCount() % 2 == 1);
+            numbers[0] = "";
+            numbers[1] = "";
+            numbers[2] = "";
+            
+            for (int aa = 0; aa < 6; aa++)
             {
-                flag = false;
-                break;
-            } 
-        }
-        if(flag)
-        {
-            wordList[length].Remove(kw.ToUpper());
-            triedWords.Clear();
-            Debug.LogFormat("[Yellow Cipher #{0}] Trifid Key: {1}", moduleId, key);
-            Debug.LogFormat("[Yellow Cipher #{0}] Trifid Numbers:\n{1}\n{2}\n{3}", moduleId, numbers[0], numbers[1], numbers[2]);
+                int cursor = key.IndexOf(word[aa]);
+                numbers[0] = numbers[0] + "" + grid[0][cursor];
+                numbers[1] = numbers[1] + "" + grid[1][cursor];
+                numbers[2] = numbers[2] + "" + grid[2][cursor];
+            }
+            flag = false;
             for (int bb = 0; bb < 3; bb++)
             {
-                string[] nums = new string[2];
-                nums[0] = numbers[bb][0] + "" + numbers[bb][1] + "" + numbers[bb][2];
-                nums[1] = numbers[bb][3] + "" + numbers[bb][4] + "" + numbers[bb][5];
-                string pos = "931";
-                for(int cc = 0; cc < 2; cc++)
+                string n1 = numbers[bb][0] + "" + numbers[bb][1] + "" + numbers[bb][2];
+                string n2 = numbers[bb][3] + "" + numbers[bb][4] + "" + numbers[bb][5];
+                if (n1.Equals("333") || n2.Equals("333"))
                 {
-                    int num = 0;
-                    for (int dd = 0; dd < 3; dd++)
-                    {
-                        num += ((pos[dd] - '0') * (nums[cc][dd] - '0' - 1));
-                    }
-                    encrypt = encrypt + "" + key[num];
+                    flag = true;
+                    break;
                 }
             }
-            Debug.LogFormat("[Yellow Cipher #{0}] Trifid Encrypted Word: {1}", moduleId, encrypt);
-            return encrypt + " " + kw;
-        }
-        else
+
+        } while (flag);
+        string encrypt = "";
+        wordList[length].Remove(kw.ToUpper());
+        Debug.LogFormat("[Yellow Cipher #{0}] Trifid Key: {1}", moduleId, key);
+        Debug.LogFormat("[Yellow Cipher #{0}] Trifid Numbers:\n{1}\n{2}\n{3}", moduleId, numbers[0], numbers[1], numbers[2]);
+        for (int bb = 0; bb < 3; bb++)
         {
-            return TrifidEnc(word);
+            string[] nums = new string[2];
+            nums[0] = numbers[bb][0] + "" + numbers[bb][1] + "" + numbers[bb][2];
+            nums[1] = numbers[bb][3] + "" + numbers[bb][4] + "" + numbers[bb][5];
+            string pos = "931";
+            for (int cc = 0; cc < 2; cc++)
+            {
+                int num = 0;
+                for (int dd = 0; dd < 3; dd++)
+                {
+                    num += ((pos[dd] - '0') * (nums[cc][dd] - '0' - 1));
+                }
+                encrypt = encrypt + "" + key[num];
+            }
         }
+        Debug.LogFormat("[Yellow Cipher #{0}] Trifid Encrypted Word: {1}", moduleId, encrypt);
+        return encrypt + " " + kw;
     }
     string HillEnc(string word)
     {
